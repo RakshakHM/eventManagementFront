@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -63,6 +63,7 @@ export function ServiceGallery({ images }: ServiceGalleryProps) {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-4xl p-0 bg-transparent border-none">
+          <DialogTitle className="sr-only">Service Image Gallery</DialogTitle>
           <div className="relative">
             <img
               src={displayImages[currentImage] || "/placeholder.svg"}

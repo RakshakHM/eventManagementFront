@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Users, Star } from "lucide-react"
+import { getApiUrl } from "@/lib/utils"
 
 export function PopularVenues() {
   const [venues, setVenues] = useState<any[]>([])
@@ -13,7 +14,7 @@ export function PopularVenues() {
 
   useEffect(() => {
     setLoading(true)
-    fetch("http://localhost:3001/api/services")
+    fetch(getApiUrl("/api/services"))
       .then((res) => res.json())
       .then((data) => {
         // Filter for halls and sort by rating

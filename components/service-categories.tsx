@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Camera, Building2, Palette } from "lucide-react"
+import { getApiUrl } from "@/lib/utils"
 
 const iconMap: Record<string, any> = {
   cameras: Camera,
@@ -17,7 +18,7 @@ export function ServiceCategories() {
 
   useEffect(() => {
     setLoading(true)
-    fetch("http://localhost:3001/api/services")
+    fetch(getApiUrl("/api/services"))
       .then((res) => res.json())
       .then((data) => {
         // Extract unique categories with a sample image and description

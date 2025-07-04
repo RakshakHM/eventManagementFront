@@ -5,6 +5,7 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
+import { getApiUrl } from "@/lib/utils"
 
 interface User {
   id: string
@@ -32,27 +33,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast()
 
   // Check if user is logged in on mount
-  // useEffect(() => {
-  //   const storedUser = localStorage.getItem("user")
-  //   if (storedUser) {
-  //     setUser(JSON.parse(storedUser))
-  //   }
-  //   setIsLoading(false)
-  // }, [])
-
   useEffect(() => {
-  // TEMPORARY HARDCODED ADMIN USER (Remove once backend is ready)
-  const mockUser: User = {
-    id: "1",
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "admin",
-  }
-
-  setUser(mockUser)
-  setIsLoading(false)
-}, [])
-
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+    setIsLoading(false)
+  }, [])
 
   // Check for protected routes
   useEffect(() => {
@@ -66,7 +53,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
         router.push("/login")
       }
-
       // User dashboard protection
       if (pathname?.startsWith("/dashboard") && !user) {
         toast({
@@ -80,32 +66,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     setIsLoading(true)
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Demo login logic
-      let mockUser: User
-
-      if (email === "admin@example.com" && password === "password") {
-        mockUser = {
-          id: "1",
-          name: "Admin User",
-          email: "admin@example.com",
-          role: "admin",
-        }
-      } else {
-        mockUser = {
-          id: "2",
-          name: "Regular User",
-          email: email,
-          role: "user",
-        }
-      }
-
-      setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
+      const res = await fetch(getApiUrl("/api/login"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Login failed")
+      setUser({ id: data.id, name: data.name, email: data.email, role: data.role })
+      localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
+      localStorage.setItem("token", data.token)
     } finally {
       setIsLoading(false)
     }
@@ -113,20 +84,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (name: string, email: string, password: string) => {
     setIsLoading(true)
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const mockUser: User = {
-        id: "3",
-        name,
-        email,
-        role: "user",
-      }
-
-      setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
+      const res = await fetch(getApiUrl("/api/users"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Registration failed")
+      setUser({ id: data.id, name: data.name, email: data.email, role: data.role })
+      localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
+      localStorage.setItem("token", data.token)
     } finally {
       setIsLoading(false)
     }
@@ -135,6 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null)
     localStorage.removeItem("user")
+    localStorage.removeItem("token")
     router.push("/")
   }
 

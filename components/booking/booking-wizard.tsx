@@ -11,6 +11,7 @@ import { BookingStep3 } from "@/components/booking/booking-step3"
 import { BookingStep4 } from "@/components/booking/booking-step4"
 import { BookingLoginPrompt } from "@/components/booking/booking-login-prompt"
 import { BookingConfirmation } from "@/components/booking/booking-confirmation"
+import { getApiUrl } from "@/lib/utils"
 
 interface BookingWizardProps {
   service: any
@@ -69,22 +70,44 @@ export function BookingWizard({ service }: BookingWizardProps) {
   }
 
   const handleSubmit = async () => {
+    console.log("Confirm Booking clicked");
+    console.log("service.id:", service.id);
+    console.log("bookingData.date:", bookingData.date);
+    console.log("bookingData:", bookingData);
+    console.log("service.price:", service.price);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("You must be logged in to book.");
+      console.log("About to send fetch");
+      const res = await fetch(getApiUrl("/api/bookings"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          serviceId: service.id,
+          date: bookingData.date,
+          price: service.price,
+          status: "confirmed",
+        }),
+      });
+      console.log("Fetch sent, response:", res);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Booking failed");
+      }
       toast({
         title: "Booking Successful!",
         description: "Your booking has been confirmed.",
-      })
-
-      setCurrentStep(5) // Show confirmation
-    } catch (error) {
+      });
+      setCurrentStep(5); // Show confirmation
+    } catch (error: any) {
       toast({
         title: "Booking Failed",
-        description: "There was an error processing your booking. Please try again.",
+        description: error.message || "There was an error processing your booking. Please try again.",
         variant: "destructive",
-      })
+      });
     }
   }
 

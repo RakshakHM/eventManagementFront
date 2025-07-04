@@ -1,10 +1,11 @@
+import * as React from "react";
 import { ServiceFilter } from "@/components/service-filter"
 import { ServiceGrid } from "@/components/service-grid"
 import { AIAssistantButton } from "@/components/ai-assistant-button"
 import { capitalizeFirstLetter } from "@/lib/utils"
 
 export default function CategoryPage({ params }: { params: { category: string } }) {
-  const category = params.category
+  const { category } = React.use(params as unknown as React.Usable<{ category: string }>)
   const categoryTitle = capitalizeFirstLetter(category)
 
   return (
@@ -17,7 +18,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
 
         <div className="flex flex-col md:flex-row gap-6">
           <div className="md:w-1/4">
-            <ServiceFilter selectedCategory={category} />
+            <ServiceFilter category={category} />
           </div>
           <div className="md:w-3/4">
             <ServiceGrid category={category} />

@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Home } from "lucide-react"
 import { useEffect, useState } from "react"
+import * as React from "react"
+import { getApiUrl } from "@/lib/utils"
 // import { getServiceById } from "@/lib/data"
 
 export default function ServiceDetailPage({
@@ -22,13 +24,14 @@ export default function ServiceDetailPage({
 }: {
   params: { category: string; id: string }
 }) {
+  const { id, category } = React.use(params as unknown as React.Usable<{ id: string; category: string }>)
   const [service, setService] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
-    fetch(`http://localhost:3001/api/services/${params.id}`)
+    fetch(getApiUrl(`/api/services/${id}`))
       .then((res) => {
         if (!res.ok) throw new Error("Service not found")
         return res.json()
@@ -44,14 +47,14 @@ export default function ServiceDetailPage({
         setError(err.message)
         setLoading(false)
       })
-  }, [params.id])
+  }, [id])
 
   const categoryName =
     {
       cameras: "Cameras",
       halls: "Convention Halls",
       decorators: "Decorators",
-    }[params.category] || "Service"
+    }[category] || "Service"
 
   if (loading) {
     return <div className="container py-10 text-center">Loading...</div>
@@ -83,7 +86,7 @@ export default function ServiceDetailPage({
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/services/${params.category}`}>{categoryName}</BreadcrumbLink>
+            <BreadcrumbLink href={`/services/${category}`}>{categoryName}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -116,7 +119,7 @@ export default function ServiceDetailPage({
 
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-6">Similar Services in Bangalore</h2>
-        <RelatedServices category={params.category} currentId={params.id} />
+        <RelatedServices category={category} currentId={id} />
       </div>
 
       <AIAssistantButton />

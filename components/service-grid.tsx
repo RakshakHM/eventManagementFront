@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, MapPin } from "lucide-react"
+import { getApiUrl } from "@/lib/utils"
 // import { getServices } from "@/lib/data" // Remove this import
 
 interface ServiceGridProps {
@@ -20,7 +21,7 @@ export function ServiceGrid({ category }: ServiceGridProps) {
 
   useEffect(() => {
     setLoading(true)
-    fetch("http://localhost:3001/api/services")
+    fetch(getApiUrl("/api/services"))
       .then((res) => res.json())
       .then((data) => {
         // Convert images from comma-separated string to array

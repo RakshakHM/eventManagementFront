@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { getApiUrl } from "@/lib/utils"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -30,11 +31,17 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const res = await fetch(getApiUrl("/api/login"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Login failed")
 
-      // Mock successful login
-      localStorage.setItem("user", JSON.stringify({ email: loginEmail }))
+      // Store JWT and user info
+      localStorage.setItem("token", data.token)
+      localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
 
       toast({
         title: "Login successful",
@@ -42,10 +49,10 @@ export default function LoginPage() {
       })
 
       router.push(redirectTo)
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again.",
+        description: error.message || "Please check your credentials and try again.",
         variant: "destructive",
       })
     } finally {
@@ -58,11 +65,17 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const res = await fetch(getApiUrl("/api/users"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: registerName, email: registerEmail, password: registerPassword }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Registration failed")
 
-      // Mock successful registration
-      localStorage.setItem("user", JSON.stringify({ email: registerEmail, name: registerName }))
+      // Store JWT and user info
+      localStorage.setItem("token", data.token)
+      localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
 
       toast({
         title: "Registration successful",
@@ -70,10 +83,10 @@ export default function LoginPage() {
       })
 
       router.push(redirectTo)
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Registration failed",
-        description: "Please check your information and try again.",
+        description: error.message || "Please check your information and try again.",
         variant: "destructive",
       })
     } finally {

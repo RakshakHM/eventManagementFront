@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { CalendarIcon } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
-import { cn, formatDate } from "@/lib/utils"
+import { cn, formatDate, getApiUrl } from "@/lib/utils"
 
 interface BookingFormProps {
   serviceId: string
@@ -54,8 +54,23 @@ export function BookingForm({ serviceId }: BookingFormProps) {
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const token = localStorage.getItem("token")
+      const res = await fetch(getApiUrl("/api/bookings"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          serviceId,
+          date,
+          guests: Number(guests),
+          notes,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Booking failed")
 
       toast({
         title: "Booking successful",
@@ -63,10 +78,10 @@ export function BookingForm({ serviceId }: BookingFormProps) {
       })
 
       router.push("/dashboard/bookings")
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Booking failed",
-        description: "There was an error processing your booking.",
+        description: error.message || "There was an error processing your booking.",
         variant: "destructive",
       })
     } finally {

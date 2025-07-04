@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn, getApiUrl } from "@/lib/utils"
 
 export function CityBannerCarousel() {
   const [banners, setBanners] = useState<any[]>([])
@@ -13,7 +13,7 @@ export function CityBannerCarousel() {
 
   useEffect(() => {
     setLoading(true)
-    fetch("http://localhost:3001/api/services")
+    fetch(getApiUrl("/api/services"))
       .then((res) => res.json())
       .then((data) => {
         // Use top 4 featured or high-rated services as banners
