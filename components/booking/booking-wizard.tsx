@@ -23,6 +23,7 @@ export function BookingWizard({ service }: BookingWizardProps) {
   const { toast } = useToast()
   const { user } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
+  const [isDateAvailable, setIsDateAvailable] = useState(true)
   const [bookingData, setBookingData] = useState({
     date: null as Date | null,
     time: "",
@@ -76,6 +77,29 @@ export function BookingWizard({ service }: BookingWizardProps) {
     setCurrentStep(4) // Move to next step after login
   }
 
+  // Periodically check availability when on review step
+  useEffect(() => {
+    if (currentStep === 4 && bookingData.date) {
+      const checkAvailability = async () => {
+        try {
+          const formattedDate = bookingData.date?.toISOString().split('T')[0]
+          const response = await fetch(getApiUrl(`/api/availability/${service.id}/${formattedDate}`))
+          const data = await response.json()
+          setIsDateAvailable(data.available)
+        } catch (error) {
+          setIsDateAvailable(false)
+        }
+      }
+
+      // Check immediately
+      checkAvailability()
+
+      // Check every 30 seconds
+      const interval = setInterval(checkAvailability, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [currentStep, bookingData.date, service.id])
+
   const handleSubmit = async () => {
     if (!user) {
       toast({
@@ -89,6 +113,21 @@ export function BookingWizard({ service }: BookingWizardProps) {
     try {
       const token = localStorage.getItem("token")
       if (!token) throw new Error("You must be logged in to book.")
+
+      // Final availability check before submitting
+      const formattedDate = bookingData.date?.toISOString().split('T')[0]
+      const availabilityCheck = await fetch(getApiUrl(`/api/availability/${service.id}/${formattedDate}`))
+      const availabilityData = await availabilityCheck.json()
+
+      if (!availabilityData.available) {
+        toast({
+          title: "Date No Longer Available",
+          description: "This date was booked by someone else while you were completing your booking. Please select a different date.",
+          variant: "destructive",
+        })
+        setCurrentStep(1) // Go back to date selection
+        return
+      }
 
       const res = await fetch(getApiUrl("/api/bookings"), {
         method: "POST",
@@ -114,6 +153,16 @@ export function BookingWizard({ service }: BookingWizardProps) {
 
       if (!res.ok) {
         const data = await res.json()
+        if (data.error && data.error.includes("already booked")) {
+          toast({
+            title: "Date Already Booked",
+            description: "This date is no longer available. Please go back and select a different date.",
+            variant: "destructive",
+          })
+          // Go back to step 1 to select a new date
+          setCurrentStep(1)
+          return
+        }
         throw new Error(data.error || "Booking failed")
       }
 
@@ -152,7 +201,12 @@ export function BookingWizard({ service }: BookingWizardProps) {
       {/* Step content */}
       <div className="space-y-6">
         {currentStep === 1 && (
-          <BookingStep1 service={service} bookingData={bookingData} updateBookingData={updateBookingData} />
+          <BookingStep1 
+            service={service} 
+            bookingData={bookingData} 
+            updateBookingData={updateBookingData}
+            onAvailabilityChange={setIsDateAvailable}
+          />
         )}
 
         {currentStep === 2 && (
@@ -163,7 +217,7 @@ export function BookingWizard({ service }: BookingWizardProps) {
           <BookingStep3 service={service} bookingData={bookingData} updateBookingData={updateBookingData} />
         )}
 
-        {currentStep === 4 && <BookingStep4 service={service} bookingData={bookingData} />}
+        {currentStep === 4 && <BookingStep4 service={service} bookingData={bookingData} isDateAvailable={isDateAvailable} />}
 
         {currentStep === 99 && (
           <BookingLoginPrompt onLoginSuccess={handleLoginSuccess} redirectTo={`/booking/${service.id}`} />
@@ -181,7 +235,7 @@ export function BookingWizard({ service }: BookingWizardProps) {
 
           <Button
             onClick={currentStep === 4 ? handleSubmit : handleNext}
-            disabled={!isStepValid(currentStep, bookingData)}
+            disabled={!isStepValid(currentStep, bookingData, isDateAvailable) || (currentStep === 4 && !isDateAvailable)}
           >
             {currentStep === 4 ? "Confirm Booking" : "Continue"}
           </Button>
@@ -194,7 +248,7 @@ export function BookingWizard({ service }: BookingWizardProps) {
 function getStepTitle(step: number): string {
   switch (step) {
     case 1:
-      return "Date & Time"
+      return "Date Selection"
     case 2:
       return "Options & Add-ons"
     case 3:
@@ -206,10 +260,10 @@ function getStepTitle(step: number): string {
   }
 }
 
-function isStepValid(step: number, data: any): boolean {
+function isStepValid(step: number, data: any, isDateAvailable: boolean): boolean {
   switch (step) {
     case 1:
-      return !!data.date && !!data.time
+      return !!data.date && data.time === 'Full Day' && isDateAvailable; // Must have date, be full day, and be available
     case 2:
       return true // Always valid as add-ons are optional
     case 3:

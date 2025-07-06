@@ -1,12 +1,15 @@
 import { formatDate } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { XCircle } from "lucide-react"
 
 interface BookingStep4Props {
   service: any
   bookingData: any
+  isDateAvailable?: boolean
 }
 
-export function BookingStep4({ service, bookingData }: BookingStep4Props) {
+export function BookingStep4({ service, bookingData, isDateAvailable }: BookingStep4Props) {
   // Calculate total price
   const basePrice = service.price
 
@@ -18,11 +21,20 @@ export function BookingStep4({ service, bookingData }: BookingStep4Props) {
   const total = basePrice + addonsTotal
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold mb-2">Review Your Booking</h2>
-        <p className="text-muted-foreground">Please review the details of your booking before confirming</p>
-      </div>
+          <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-bold mb-2">Review Your Booking</h2>
+          <p className="text-muted-foreground">Please review the details of your booking before confirming</p>
+        </div>
+
+        {isDateAvailable === false && (
+          <Alert variant="destructive">
+            <XCircle className="h-4 w-4" />
+            <AlertDescription>
+              This date is no longer available. Please go back and select a different date.
+            </AlertDescription>
+          </Alert>
+        )}
 
       <div className="space-y-4">
         <div className="bg-muted p-4 rounded-md">
