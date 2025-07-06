@@ -11,12 +11,14 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { getApiUrl } from "@/lib/utils"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useAuth } from "@/components/auth-provider"
 
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
+  const { login, register } = useAuth()
   const redirectTo = searchParams.get("redirectTo") || "/dashboard"
 
   const [isLoading, setIsLoading] = useState(false)
@@ -25,34 +27,27 @@ export default function LoginPage() {
   const [registerName, setRegisterName] = useState("")
   const [registerEmail, setRegisterEmail] = useState("")
   const [registerPassword, setRegisterPassword] = useState("")
+  const [loginError, setLoginError] = useState("")
+  const [registerError, setRegisterError] = useState("")
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setLoginError("") // Clear previous errors
 
     try {
-      const res = await fetch(getApiUrl("/api/login"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Login failed")
-
-      // Store JWT and user info
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
-
+      await login(loginEmail, loginPassword)
       toast({
         title: "Login successful",
         description: "Welcome back to EventBLR!",
       })
-
       router.push(redirectTo)
     } catch (error: any) {
+      const errorMessage = error.message || "Please check your credentials and try again."
+      setLoginError(errorMessage)
       toast({
         title: "Login failed",
-        description: error.message || "Please check your credentials and try again.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -63,30 +58,21 @@ export default function LoginPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setRegisterError("") // Clear previous errors
 
     try {
-      const res = await fetch(getApiUrl("/api/users"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: registerName, email: registerEmail, password: registerPassword }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Registration failed")
-
-      // Store JWT and user info
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
-
+      await register(registerName, registerEmail, registerPassword)
       toast({
         title: "Registration successful",
         description: "Welcome to EventBLR!",
       })
-
       router.push(redirectTo)
     } catch (error: any) {
+      const errorMessage = error.message || "Please check your information and try again."
+      setRegisterError(errorMessage)
       toast({
         title: "Registration failed",
-        description: error.message || "Please check your information and try again.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -107,6 +93,12 @@ export default function LoginPage() {
           <CardContent>
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
+                {loginError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{loginError}</AlertDescription>
+                  </Alert>
+                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -141,6 +133,12 @@ export default function LoginPage() {
 
             <TabsContent value="register">
               <form onSubmit={handleRegister} className="space-y-4">
+                {registerError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{registerError}</AlertDescription>
+                  </Alert>
+                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
                   <Input

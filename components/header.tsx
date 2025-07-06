@@ -17,11 +17,12 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, Camera, Building2, Palette, User } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/components/auth-provider"
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const pathname = usePathname()
+  const { user, logout } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,17 +30,11 @@ export function Header() {
     }
 
     window.addEventListener("scroll", handleScroll)
-
-    // Check if user is logged in
-    const user = localStorage.getItem("user")
-    setIsLoggedIn(!!user)
-
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem("user")
-    setIsLoggedIn(false)
+    logout()
   }
 
   return (
@@ -136,7 +131,7 @@ export function Header() {
         <div className="flex items-center gap-4">
           <ModeToggle />
 
-          {isLoggedIn ? (
+          {user ? (
             <div className="hidden md:flex items-center gap-4">
               <Button variant="ghost" asChild>
                 <Link href="/dashboard">Dashboard</Link>
@@ -197,7 +192,7 @@ export function Header() {
                 </div>
 
                 <div className="border-t pt-4 mt-2">
-                  {isLoggedIn ? (
+                  {user ? (
                     <div className="flex flex-col gap-2">
                       <Button variant="outline" asChild>
                         <Link href="/dashboard">

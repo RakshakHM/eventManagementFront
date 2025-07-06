@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -12,6 +12,7 @@ import { BookingStep4 } from "@/components/booking/booking-step4"
 import { BookingLoginPrompt } from "@/components/booking/booking-login-prompt"
 import { BookingConfirmation } from "@/components/booking/booking-confirmation"
 import { getApiUrl } from "@/lib/utils"
+import { useAuth } from "@/components/auth-provider"
 
 interface BookingWizardProps {
   service: any
@@ -20,6 +21,7 @@ interface BookingWizardProps {
 export function BookingWizard({ service }: BookingWizardProps) {
   const router = useRouter()
   const { toast } = useToast()
+  const { user } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [bookingData, setBookingData] = useState({
     date: null as Date | null,
@@ -31,13 +33,19 @@ export function BookingWizard({ service }: BookingWizardProps) {
     contactEmail: "",
     contactPhone: "",
   })
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   // Check if user is logged in
-  useState(() => {
-    const user = localStorage.getItem("user")
-    setIsLoggedIn(!!user)
-  })
+  useEffect(() => {
+    if (user) {
+      // Pre-fill contact information if user is logged in
+      setBookingData(prev => ({
+        ...prev,
+        contactName: user.name || "",
+        contactEmail: user.email || "",
+        contactPhone: "",
+      }))
+    }
+  }, [user])
 
   const updateBookingData = (data: Partial<typeof bookingData>) => {
     setBookingData((prev) => ({ ...prev, ...data }))
@@ -45,7 +53,7 @@ export function BookingWizard({ service }: BookingWizardProps) {
 
   const handleNext = () => {
     // If we're at step 3 and not logged in, show login prompt
-    if (currentStep === 3 && !isLoggedIn) {
+    if (currentStep === 3 && !user) {
       setCurrentStep(99) // Special step for login prompt
       return
     }
@@ -65,20 +73,23 @@ export function BookingWizard({ service }: BookingWizardProps) {
   }
 
   const handleLoginSuccess = () => {
-    setIsLoggedIn(true)
     setCurrentStep(4) // Move to next step after login
   }
 
   const handleSubmit = async () => {
-    console.log("Confirm Booking clicked");
-    console.log("service.id:", service.id);
-    console.log("bookingData.date:", bookingData.date);
-    console.log("bookingData:", bookingData);
-    console.log("service.price:", service.price);
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to complete your booking.",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("You must be logged in to book.");
-      console.log("About to send fetch");
+      const token = localStorage.getItem("token")
+      if (!token) throw new Error("You must be logged in to book.")
+
       const res = await fetch(getApiUrl("/api/bookings"), {
         method: "POST",
         headers: {
@@ -86,28 +97,37 @@ export function BookingWizard({ service }: BookingWizardProps) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
+          userId: user.id,
           serviceId: service.id,
           date: bookingData.date,
+          time: bookingData.time,
+          guests: bookingData.guests,
+          addons: bookingData.addons,
+          specialRequests: bookingData.specialRequests,
+          contactName: bookingData.contactName,
+          contactEmail: bookingData.contactEmail,
+          contactPhone: bookingData.contactPhone,
           price: service.price,
           status: "confirmed",
         }),
-      });
-      console.log("Fetch sent, response:", res);
+      })
+
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Booking failed");
+        const data = await res.json()
+        throw new Error(data.error || "Booking failed")
       }
+
       toast({
         title: "Booking Successful!",
         description: "Your booking has been confirmed.",
-      });
-      setCurrentStep(5); // Show confirmation
+      })
+      setCurrentStep(5) // Show confirmation
     } catch (error: any) {
       toast({
         title: "Booking Failed",
         description: error.message || "There was an error processing your booking. Please try again.",
         variant: "destructive",
-      });
+      })
     }
   }
 

@@ -73,10 +73,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Login failed")
+      if (!res.ok) {
+        throw new Error(typeof data.error === 'string' && data.error ? data.error : "Invalid email or password")
+      }
       setUser({ id: data.id, name: data.name, email: data.email, role: data.role })
       localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
       localStorage.setItem("token", data.token)
+    } catch (error: any) {
+      throw new Error(error?.message || "Invalid email or password")
     } finally {
       setIsLoading(false)
     }
@@ -91,10 +95,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ name, email, password }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Registration failed")
+      
+      if (!res.ok) {
+        console.error("Registration failed:", data)
+        throw new Error(data.error || "Registration failed")
+      }
+      
       setUser({ id: data.id, name: data.name, email: data.email, role: data.role })
       localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
       localStorage.setItem("token", data.token)
+    } catch (error: any) {
+      console.error("Registration error:", error)
+      throw error // Re-throw the error so the calling component can handle it
     } finally {
       setIsLoading(false)
     }

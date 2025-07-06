@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
+import { useAuth } from "@/components/auth-provider"
 
 interface BookingLoginPromptProps {
   onLoginSuccess: () => void
@@ -17,6 +18,7 @@ interface BookingLoginPromptProps {
 
 export function BookingLoginPrompt({ onLoginSuccess, redirectTo }: BookingLoginPromptProps) {
   const { toast } = useToast()
+  const { login, register } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [loginEmail, setLoginEmail] = useState("")
   const [loginPassword, setLoginPassword] = useState("")
@@ -29,22 +31,16 @@ export function BookingLoginPrompt({ onLoginSuccess, redirectTo }: BookingLoginP
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Mock successful login
-      localStorage.setItem("user", JSON.stringify({ email: loginEmail }))
-
+      await login(loginEmail, loginPassword)
       toast({
         title: "Login successful",
         description: "Welcome back to EventBLR!",
       })
-
       onLoginSuccess()
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again.",
+        description: error.message || "Please check your credentials and try again.",
         variant: "destructive",
       })
     } finally {
@@ -57,22 +53,16 @@ export function BookingLoginPrompt({ onLoginSuccess, redirectTo }: BookingLoginP
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Mock successful registration
-      localStorage.setItem("user", JSON.stringify({ email: registerEmail, name: registerName }))
-
+      await register(registerName, registerEmail, registerPassword)
       toast({
         title: "Registration successful",
         description: "Welcome to EventBLR!",
       })
-
       onLoginSuccess()
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Registration failed",
-        description: "Please check your information and try again.",
+        description: error.message || "Please check your information and try again.",
         variant: "destructive",
       })
     } finally {
