@@ -16,7 +16,7 @@ import {
 import { Home } from "lucide-react"
 import { useEffect, useState } from "react"
 import * as React from "react"
-import { getApiUrl } from "@/lib/utils"
+import { getApiUrl, getImageUrl } from "@/lib/utils"
 // import { getServiceById } from "@/lib/data"
 
 export default function ServiceDetailPage({
@@ -39,7 +39,10 @@ export default function ServiceDetailPage({
       .then((data) => {
         setService({
           ...data,
-          images: data.images ? data.images.split(",") : [],
+          galleryImages: [
+            data.image ? getImageUrl(data.image) : null,
+            ...(data.images ? data.images.split(",").filter(Boolean).map(getImageUrl) : [])
+          ].filter(Boolean),
         })
         setLoading(false)
       })
@@ -102,7 +105,7 @@ export default function ServiceDetailPage({
             <p className="text-muted-foreground mt-2">{service.location}</p>
           </div>
 
-          <ServiceGallery images={service.images} />
+          <ServiceGallery images={service.galleryImages || []} />
           <ServiceDetails service={service} />
           {/* You may want to fetch reviews separately from /api/reviews?serviceId=... */}
           {/* <ServiceReviews reviews={service.reviews} /> */}

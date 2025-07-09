@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Star, MapPin } from "lucide-react"
 import { getServices } from "@/lib/data"
+import { getImageUrl } from "@/lib/utils";
 
 interface RelatedServicesProps {
   category: string
@@ -25,7 +26,7 @@ export function RelatedServices({ category, currentId }: RelatedServicesProps) {
         <Card key={service.id} className="overflow-hidden">
           <div className="aspect-video">
             <img
-              src={service.image || "/placeholder.svg?height=300&width=500"}
+              src={getImageUrl(service.image) || "/placeholder.svg?height=300&width=500"}
               alt={service.name}
               className="object-cover w-full h-full"
             />

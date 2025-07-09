@@ -9,10 +9,12 @@ import { AIAssistantButton } from "@/components/ai/ai-assistant-button"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { toast } from "@/components/ui/use-toast";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <div className="flex flex-col">
+      {/* TestToastButton removed */}
       <CityBannerCarousel />
 
       <section className="container py-8 md:py-12">

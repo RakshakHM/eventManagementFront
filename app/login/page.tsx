@@ -18,7 +18,7 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
-  const { login, register } = useAuth()
+  const { login, register, user } = useAuth()
   const redirectTo = searchParams.get("redirectTo") || "/dashboard"
 
   const [isLoading, setIsLoading] = useState(false)
@@ -41,7 +41,13 @@ export default function LoginPage() {
         title: "Login successful",
         description: "Welcome back to EventBLR!",
       })
-      router.push(redirectTo)
+      // Redirect based on user role
+      const storedUser = user || (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem("user") || "null") : null)
+      if (storedUser && storedUser.role === "admin") {
+        router.push("/admin")
+      } else {
+        router.push(redirectTo)
+      }
     } catch (error: any) {
       const errorMessage = error.message || "Please check your credentials and try again."
       setLoginError(errorMessage)

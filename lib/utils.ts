@@ -25,3 +25,11 @@ export function getApiUrl(path: string): string {
   // Ensure no double slashes
   return `${baseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 }
+
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+export const getImageUrl = (imagePath?: string) => {
+  if (!imagePath) return "/placeholder.svg";
+  if (imagePath.startsWith("data:")) return imagePath;
+  if (imagePath.startsWith("http")) return imagePath;
+  return API_BASE_URL + imagePath;
+};

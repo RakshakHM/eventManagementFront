@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Star } from "lucide-react"
+import { getImageUrl } from "@/lib/utils";
 
 export function RecentServices() {
   const services = [
@@ -45,7 +46,7 @@ export function RecentServices() {
           {services.map((service) => (
             <div key={service.id} className="flex items-center gap-4 border-b pb-4 last:border-0 last:pb-0">
               <Avatar className="h-12 w-12 rounded-md">
-                <AvatarImage src={service.image || "/placeholder.svg"} alt={service.name} />
+                <AvatarImage src={getImageUrl(service.image)} alt={service.name} />
                 <AvatarFallback className="rounded-md">{service.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="flex-1 space-y-1">
