@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, MapPin } from "lucide-react"
-import { getApiUrl, getImageUrl } from "@/lib/utils"
+import { getApiUrl } from "@/lib/utils"
 // import { getServices } from "@/lib/data" // Remove this import
 
 interface ServiceGridProps {
@@ -70,7 +70,7 @@ export function ServiceGrid({ category }: ServiceGridProps) {
           <Card key={service.id} className="overflow-hidden">
             <div className="aspect-video relative">
               <img
-                src={getImageUrl(service.image) || "/placeholder.svg?height=300&width=500"}
+                src={service.image || "/placeholder.svg?height=300&width=500"}
                 alt={service.name}
                 className="object-cover w-full h-full"
               />

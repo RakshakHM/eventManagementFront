@@ -20,7 +20,7 @@ export function capitalizeFirstLetter(string: string): string {
 export function getApiUrl(path: string): string {
   // Use local backend for development
   const baseUrl = process.env.NODE_ENV === 'production' 
-    ? "https://eventmanagementapi-production.up.railway.app"
+    ? "https://eventmanagementapi-ej02.onrender.com"
     : "http://localhost:3001";
   // Ensure no double slashes
   return `${baseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
