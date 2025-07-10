@@ -32,7 +32,7 @@ export const getImageUrl = (imagePath?: string) => {
   if (imagePath.startsWith("data:")) return imagePath;
   if (imagePath.startsWith("http")) return imagePath;
   const baseUrl = process.env.NODE_ENV === 'production'
-    ? "https://event-management-api-ebon.vercel.app/"
+    ? "https://eventmanagementapi-ej02.onrender.com"
     : "http://localhost:3001";
   return baseUrl + imagePath;
 };
