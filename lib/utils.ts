@@ -31,5 +31,8 @@ export const getImageUrl = (imagePath?: string) => {
   if (!imagePath) return "/placeholder.svg";
   if (imagePath.startsWith("data:")) return imagePath;
   if (imagePath.startsWith("http")) return imagePath;
-  return API_BASE_URL + imagePath;
+  const baseUrl = process.env.NODE_ENV === 'production'
+    ? "https://eventmanagementapi-ej02.onrender.com"
+    : "http://localhost:3001";
+  return baseUrl + imagePath;
 };
