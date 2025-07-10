@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Users, Star } from "lucide-react"
-import { getApiUrl } from "@/lib/utils"
+import { getApiUrl, getImageUrl } from "@/lib/utils"
 
 export function PopularVenues() {
   const [venues, setVenues] = useState<any[]>([])
@@ -40,7 +40,7 @@ export function PopularVenues() {
         <Link key={venue.id} href={`/services/halls/${venue.id}`}>
           <Card className="overflow-hidden h-full hover:shadow-md transition-shadow">
             <div className="aspect-video relative">
-              <img src={venue.image || "/placeholder.svg"} alt={venue.name} className="object-cover w-full h-full" />
+              <img src={getImageUrl(venue.image)} alt={venue.name} className="object-cover w-full h-full" />
               {venue.featured && <Badge className="absolute top-2 right-2">Popular</Badge>}
             </div>
             <CardContent className="p-4">
