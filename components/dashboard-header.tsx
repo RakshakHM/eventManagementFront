@@ -40,6 +40,13 @@ export function DashboardHeader() {
         <div className="flex items-center gap-4">
           <ModeToggle />
 
+          <Link
+            href="/dashboard/bookings"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          >
+            Bookings
+          </Link>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full">
@@ -52,12 +59,6 @@ export function DashboardHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/bookings">Bookings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/bookings">My Bookings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/profile">Profile</Link>
               </DropdownMenuItem>
               {isAdmin && (
                 <>
