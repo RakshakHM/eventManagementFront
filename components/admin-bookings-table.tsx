@@ -56,7 +56,7 @@ export function AdminBookingsTable({ fullTable = false, searchId: searchIdProp }
   const filteredBookings = filterValue.trim()
     ? bookings.filter(b => b.id.toString().toLowerCase().includes(filterValue.trim().toLowerCase()))
     : bookings
-  const displayBookings = fullTable ? filteredBookings : filteredBookings.slice(0, 3)
+  const displayBookings = fullTable ? filteredBookings : (Array.isArray(filteredBookings) ? filteredBookings.slice(0, 3) : []);
 
   if (loading) return <div>Loading bookings...</div>
   if (error) return <div className="text-red-500">{error}</div>
