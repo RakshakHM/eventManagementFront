@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
+import { getApiUrl } from "@/lib/utils";
 
 // Define the Booking type
 interface Booking {
@@ -33,7 +34,7 @@ export function BookingsTable() {
       setError("");
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("/api/bookings", {
+        const res = await fetch(getApiUrl("/api/bookings"), {
           headers: {
             Authorization: `Bearer ${token}`,
           },
