@@ -1,4 +1,5 @@
 "use client"
+import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -12,44 +13,45 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
 
+// Define the Booking type
+interface Booking {
+  id: number | string;
+  service: { name: string } | string;
+  date: string;
+  price: number | string;
+  status: string;
+}
+
 export function BookingsTable() {
-  const bookings = [
-    {
-      id: "1",
-      service: "Premium Photography",
-      date: "June 15, 2023",
-      price: "$1,200",
-      status: "confirmed",
-    },
-    {
-      id: "2",
-      service: "Grand Convention Hall",
-      date: "July 22, 2023",
-      price: "$3,500",
-      status: "pending",
-    },
-    {
-      id: "3",
-      service: "Floral Decoration Package",
-      date: "August 5, 2023",
-      price: "$800",
-      status: "confirmed",
-    },
-    {
-      id: "4",
-      service: "Premium Photography",
-      date: "September 10, 2023",
-      price: "$1,200",
-      status: "cancelled",
-    },
-    {
-      id: "5",
-      service: "Luxury Catering",
-      date: "October 18, 2023",
-      price: "$2,500",
-      status: "confirmed",
-    },
-  ]
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("/api/bookings", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error("Failed to fetch bookings");
+        const data = await res.json();
+        setBookings(data);
+      } catch (e) {
+        setError("Failed to fetch bookings");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBookings();
+  }, []);
+
+  if (loading) return <div>Loading bookings...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="rounded-md border">
@@ -66,9 +68,13 @@ export function BookingsTable() {
         <TableBody>
           {bookings.map((booking) => (
             <TableRow key={booking.id}>
-              <TableCell className="font-medium">{booking.service}</TableCell>
-              <TableCell>{booking.date}</TableCell>
-              <TableCell>{booking.price}</TableCell>
+              <TableCell className="font-medium">{
+                typeof booking.service === "object" && booking.service !== null
+                  ? booking.service.name
+                  : booking.service
+              }</TableCell>
+              <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
+              <TableCell>{typeof booking.price === "number" ? `$${booking.price}` : booking.price}</TableCell>
               <TableCell>
                 <Badge
                   variant={
@@ -83,28 +89,12 @@ export function BookingsTable() {
                 </Badge>
               </TableCell>
               <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>View details</DropdownMenuItem>
-                    <DropdownMenuItem>Modify booking</DropdownMenuItem>
-                    <DropdownMenuItem>Contact service</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-destructive">Cancel booking</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button variant="outline" size="sm">Open menu</Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

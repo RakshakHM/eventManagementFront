@@ -34,12 +34,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Check if user is logged in on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    const storedUser = localStorage.getItem("user");
+    const loginTime = localStorage.getItem("loginTime");
+    if (storedUser && loginTime) {
+      const now = Date.now();
+      if (now - parseInt(loginTime, 10) < 3600000) { // 1 hour = 3600000 ms
+        setUser(JSON.parse(storedUser));
+      } else {
+        // Session expired
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("loginTime");
+      }
     }
-    setIsLoading(false)
-  }, [])
+    setIsLoading(false);
+  }, []);
 
   // Check for protected routes
   useEffect(() => {
@@ -79,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser({ id: data.id, name: data.name, email: data.email, role: data.role })
       localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
       localStorage.setItem("token", data.token)
+      localStorage.setItem("loginTime", Date.now().toString());
     } catch (error: any) {
       throw new Error(error?.message || "Invalid email or password")
     } finally {
@@ -104,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser({ id: data.id, name: data.name, email: data.email, role: data.role })
       localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
       localStorage.setItem("token", data.token)
+      localStorage.setItem("loginTime", Date.now().toString());
     } catch (error: any) {
       console.error("Registration error:", error)
       throw error // Re-throw the error so the calling component can handle it
@@ -116,6 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
     localStorage.removeItem("user")
     localStorage.removeItem("token")
+    localStorage.removeItem("loginTime")
     router.push("/")
   }
 
