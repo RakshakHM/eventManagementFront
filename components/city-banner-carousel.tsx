@@ -65,7 +65,7 @@ export function CityBannerCarousel() {
           )}
         >
           <div className="absolute inset-0 bg-black/40 z-10" />
-          <img src={getImageUrl(banner.image)} alt={banner.title} className="w-full h-full object-cover" />
+          <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-20 text-white p-4">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">{banner.title}</h2>
             <p className="text-lg md:text-xl max-w-2xl">{banner.description}</p>

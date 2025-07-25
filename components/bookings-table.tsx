@@ -37,7 +37,7 @@ export function BookingsTable() {
         const res = await fetch(getApiUrl("/api/bookings"), {
           headers: {
             Authorization: `Bearer ${token}`,
-          },
+    },
         });
         if (!res.ok) throw new Error("Failed to fetch bookings");
         const data = await res.json();

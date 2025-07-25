@@ -26,7 +26,7 @@ export function RelatedServices({ category, currentId }: RelatedServicesProps) {
         <Card key={service.id} className="overflow-hidden">
           <div className="aspect-video">
             <img
-              src={getImageUrl(service.image) || "/placeholder.svg?height=300&width=500"}
+              src={service.image || "/placeholder.svg?height=300&width=500"}
               alt={service.name}
               className="object-cover w-full h-full"
             />

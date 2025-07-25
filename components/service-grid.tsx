@@ -70,7 +70,7 @@ export function ServiceGrid({ category }: ServiceGridProps) {
           <Card key={service.id} className="overflow-hidden">
             <div className="aspect-video relative">
               <img
-                src={getImageUrl(service.image)}
+                src={service.image}
                 alt={service.name}
                 className="object-cover w-full h-full"
               />
