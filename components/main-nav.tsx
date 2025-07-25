@@ -55,7 +55,7 @@ export function MainNav() {
         {user ? (
           <div className="flex items-center space-x-4">
             <Button variant="ghost" asChild>
-              <Link href={isAdmin ? "/admin" : "/dashboard"}>{isAdmin ? "Admin Dashboard" : "Dashboard"}</Link>
+              <Link href={isAdmin ? "/admin" : "/dashboard/bookings"}>{isAdmin ? "Admin Dashboard" : "Bookings"}</Link>
             </Button>
           </div>
         ) : (

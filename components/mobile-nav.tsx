@@ -48,11 +48,11 @@ export function MobileNav() {
             {user ? (
               <>
                 <Link
-                  href={isAdmin ? "/admin" : "/dashboard"}
+                  href={isAdmin ? "/admin" : "/dashboard/bookings"}
                   className="text-lg font-medium transition-colors hover:text-primary"
                   onClick={() => setOpen(false)}
                 >
-                  {isAdmin ? "Admin Dashboard" : "Dashboard"}
+                  {isAdmin ? "Admin Dashboard" : "Bookings"}
                 </Link>
                 <Link
                   href="/dashboard/bookings"

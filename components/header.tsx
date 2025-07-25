@@ -134,7 +134,7 @@ export function Header() {
           {user ? (
             <div className="hidden md:flex items-center gap-4">
               <Button variant="ghost" asChild>
-                <Link href="/dashboard">Dashboard</Link>
+                <Link href="/dashboard/bookings">Bookings</Link>
               </Button>
               <Button variant="outline" onClick={handleLogout}>
                 Logout
@@ -195,7 +195,7 @@ export function Header() {
                   {user ? (
                     <div className="flex flex-col gap-2">
                       <Button variant="outline" asChild>
-                        <Link href="/dashboard">
+                        <Link href="/dashboard/bookings">
                           <User className="mr-2 h-4 w-4" />
                           Dashboard
                         </Link>
