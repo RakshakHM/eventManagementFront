@@ -40,9 +40,9 @@ export default function ServiceDetailPage({
         setService({
           ...data,
           galleryImages: [
-            data.image ? getImageUrl(data.image) : null,
-            ...(data.images ? data.images.split(",").filter(Boolean).map(getImageUrl) : [])
-          ].filter(Boolean),
+            ...(data.image ? [data.image] : []),
+            ...(data.images ? (Array.isArray(data.images) ? data.images : data.images.split(",").filter(Boolean)) : [])
+          ],
         })
         setLoading(false)
       })
