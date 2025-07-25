@@ -63,7 +63,6 @@ export function BookingsTable() {
             <TableHead>Date</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -88,9 +87,6 @@ export function BookingsTable() {
                 >
                   {booking.status}
                 </Badge>
-              </TableCell>
-              <TableCell>
-                <Button variant="outline" size="sm">Open menu</Button>
               </TableCell>
             </TableRow>
           ))}
