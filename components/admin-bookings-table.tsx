@@ -40,13 +40,24 @@ export function AdminBookingsTable({ fullTable = false, searchId: searchIdProp }
 
   useEffect(() => {
     setLoading(true)
-    fetch(getApiUrl("/api/bookings"))
-      .then(res => res.json())
+    const token = localStorage.getItem("token")
+    fetch(getApiUrl("/api/bookings"), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`)
+        }
+        return res.json()
+      })
       .then(data => {
         setBookings(data)
         setLoading(false)
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Failed to fetch bookings:", error)
         setError("Failed to fetch bookings")
         setLoading(false)
       })
@@ -54,9 +65,9 @@ export function AdminBookingsTable({ fullTable = false, searchId: searchIdProp }
 
   const filterValue = typeof searchIdProp === "string" ? searchIdProp : searchId
   const filteredBookings = filterValue.trim()
-    ? bookings.filter(b => b.id.toString().toLowerCase().includes(filterValue.trim().toLowerCase()))
-    : bookings
-  const displayBookings = fullTable ? filteredBookings : (Array.isArray(filteredBookings) ? filteredBookings.slice(0, 3) : []);
+    ? (Array.isArray(bookings) ? bookings.filter(b => b.id.toString().toLowerCase().includes(filterValue.trim().toLowerCase())) : [])
+    : (Array.isArray(bookings) ? bookings : [])
+  const displayBookings = fullTable ? filteredBookings : filteredBookings.slice(0, 3);
 
   if (loading) return <div>Loading bookings...</div>
   if (error) return <div className="text-red-500">{error}</div>
@@ -64,9 +75,13 @@ export function AdminBookingsTable({ fullTable = false, searchId: searchIdProp }
   const handleStatusChange = async (bookingId: number, newStatus: "confirmed" | "cancelled") => {
     setUpdatingId(bookingId)
     try {
+      const token = localStorage.getItem("token")
       const res = await fetch(getApiUrl(`/api/bookings/${bookingId}`), {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ status: newStatus }),
       })
       if (!res.ok) throw new Error("Failed to update status")

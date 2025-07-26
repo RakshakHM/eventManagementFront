@@ -25,16 +25,20 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      await register(name, email, password)
+      const message = await register(name, email, password)
       toast({
         title: "Registration successful",
-        description: "Your account has been created successfully.",
+        description: message || "Please check your email to confirm your account.",
       })
-      router.push("/dashboard")
-    } catch (error) {
+      // Don't redirect to dashboard - user needs to confirm email first
+      // Clear form
+      setName("")
+      setEmail("")
+      setPassword("")
+    } catch (error: any) {
       toast({
         title: "Registration failed",
-        description: "There was an error creating your account.",
+        description: error.message || "There was an error creating your account.",
         variant: "destructive",
       })
     } finally {

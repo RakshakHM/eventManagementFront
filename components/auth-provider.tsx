@@ -19,7 +19,7 @@ interface AuthContextType {
   isLoading: boolean
   isAdmin: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (name: string, email: string, password: string) => Promise<void>
+  register: (name: string, email: string, password: string) => Promise<string>
   logout: () => void
 }
 
@@ -111,10 +111,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(data.error || "Registration failed")
       }
       
-      setUser({ id: data.id, name: data.name, email: data.email, role: data.role })
-      localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role }))
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("loginTime", Date.now().toString());
+      // Registration successful but email needs confirmation
+      // Don't set user or redirect - let the calling component handle the message
+      const responseMessage = data.message || "Registration successful. Please check your email to confirm your account.";
+      if (data.warning) {
+        return `${responseMessage} ${data.warning}`;
+      }
+      return responseMessage;
     } catch (error: any) {
       console.error("Registration error:", error)
       throw error // Re-throw the error so the calling component can handle it

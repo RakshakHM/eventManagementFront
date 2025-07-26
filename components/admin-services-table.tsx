@@ -70,9 +70,9 @@ export function AdminServicesTable() {
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState("")
-  const [showImageModal, setShowImageModal] = useState(false)
-  const [imageService, setImageService] = useState<Service | null>(null)
-  // 1. Add separate state for image modal
+  // 1. Restore state for image modal
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [imageService, setImageService] = useState<Service | null>(null);
   const [imageModalPreview, setImageModalPreview] = useState<string>("");
   const imageFileInputRef = useRef<HTMLInputElement>(null);
   const [imageModalLoading, setImageModalLoading] = useState(false);
@@ -97,9 +97,7 @@ export function AdminServicesTable() {
   useEffect(() => {
     console.log("editingService:", editingService)
   }, [editingService])
-  useEffect(() => {
-    console.log("showImageModal:", showImageModal, "imageService:", imageService)
-  }, [showImageModal, imageService])
+
 
   if (loading) return <div>Loading services...</div>
   if (error) return <div className="text-red-500">{error}</div>
@@ -155,17 +153,38 @@ export function AdminServicesTable() {
     setEditLoading(true)
     setEditError("")
     try {
-      const res = await fetch(getApiUrl(`/api/services/${editingService.id}`), {
+      // Convert price to number and ensure proper data types
+      const requestData = {
+        ...editForm,
+        price: Number(editForm.price),
+      }
+      
+      const url = getApiUrl(`/api/services/${editingService.id}`)
+      const requestBody = JSON.stringify(requestData)
+      console.log("Making request to:", url)
+      console.log("Request body:", requestBody)
+      
+      const res = await fetch(url, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editForm),
+        body: requestBody,
       })
-      if (!res.ok) throw new Error("Failed to update service")
+      
+      console.log("Response status:", res.status)
+      console.log("Response headers:", Object.fromEntries(res.headers.entries()))
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        console.error("Service update failed:", res.status, errorData)
+        throw new Error(errorData.error || "Failed to update service")
+      }
       const updated = await res.json()
+      console.log("Update successful:", updated)
       setServices(prev => prev.map(s => s.id === updated.id ? { ...s, ...updated } : s))
       setEditingService(null)
       toast({ title: "Service updated", description: updated.name })
     } catch (e) {
+      console.error("Service update error:", e)
       setEditError("Could not update service")
     } finally {
       setEditLoading(false)
@@ -214,13 +233,13 @@ export function AdminServicesTable() {
     }
   }
 
-  // 4. When opening the Edit Service Images modal, set the preview to the current image
   const openImageModal = (service: Service) => {
     setImageService(service);
     setShowImageModal(true);
     setImageModalPreview(service.image || "");
     setImageModalError("");
   };
+
 
   return (
     <div className="rounded-md border">
@@ -270,7 +289,7 @@ export function AdminServicesTable() {
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => openEdit(service)}>Edit service</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => openImageModal(service)}>Edit image</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openImageModal(service)}>Edit images</DropdownMenuItem>
                     <DropdownMenuItem>View bookings</DropdownMenuItem>
                     <DropdownMenuItem>{service.status === "active" ? "Deactivate" : "Activate"}</DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -288,50 +307,9 @@ export function AdminServicesTable() {
         <DialogContent className="max-h-[90vh] overflow-y-auto flex flex-col">
           <DialogHeader>
             <DialogTitle>Edit Service</DialogTitle>
-            <DialogDescription>Update service details and image.</DialogDescription>
+            <DialogDescription>Update service details.</DialogDescription>
           </DialogHeader>
-          {/* Image Management Section */}
-          <div className="mb-4">
-            <h3 className="font-semibold mb-2">Service Image</h3>
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-32 h-32 rounded-lg overflow-hidden border bg-muted flex items-center justify-center">
-                <img src={getImageUrl(imagePreview)} alt="Service" className="object-cover w-full h-full" />
-              </div>
-              <div className="flex gap-2 mt-2">
-                <button
-                  className="px-3 py-1 rounded bg-blue-600 text-white text-xs"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={imageLoading}
-                >
-                  {imageLoading ? "Uploading..." : "Upload/Replace Image"}
-                </button>
-                <button
-                  className="px-3 py-1 rounded bg-red-600 text-white text-xs"
-                  onClick={handleImageRemove}
-                  disabled={imageLoading || imagePreview === "/placeholder.svg"}
-                >
-                  {imageLoading ? "Removing..." : "Remove Image"}
-                </button>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageChange}
-              />
-              {fileInputRef.current?.files?.[0] && (
-                <button
-                  className="mt-2 px-3 py-1 rounded bg-green-600 text-white text-xs"
-                  onClick={handleImageUpload}
-                  disabled={imageLoading}
-                >
-                  {imageLoading ? "Saving..." : "Save New Image"}
-                </button>
-              )}
-              {imageError && <div className="text-red-500 text-sm mt-2">{imageError}</div>}
-            </div>
-          </div>
+          {/* Remove image editing section here */}
           <div className="flex-1 min-h-0">
             <div className="grid grid-cols-1 gap-4">
               <div>
@@ -389,7 +367,7 @@ export function AdminServicesTable() {
           </div>
         </DialogContent>
       </Dialog>
-      {/* Edit Image Modal */}
+      {/* Restore Edit Image Modal */}
       <Dialog open={showImageModal} onOpenChange={open => { if (!open) { setShowImageModal(false); setImageService(null); } }}>
         <DialogContent>
           <DialogHeader>
@@ -488,7 +466,6 @@ export function AdminServicesTable() {
                   serviceId={imageService.id}
                   initialImages={imageService.images ? imageService.images.split(',').filter(Boolean) : []}
                   onGalleryChange={newImages => {
-                    // Update gallery images in parent state and in services list
                     setServices(prev => prev.map(s => s.id === imageService.id ? { ...s, images: newImages.join(',') } : s));
                   }}
                 />
@@ -497,6 +474,7 @@ export function AdminServicesTable() {
           )}
         </DialogContent>
       </Dialog>
+
       {/* Delete Confirmation Dialog rendered outside the table */}
       <AlertDialog open={!!serviceToDelete} onOpenChange={open => { if (!open) setServiceToDelete(null) }}>
         <AlertDialogContent>

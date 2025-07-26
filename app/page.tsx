@@ -1,7 +1,7 @@
 "use client";
 
 import { CityBannerCarousel } from "@/components/city-banner-carousel"
-import { MapSearchFinder } from "@/components/map-search-finder"
+
 import { ServiceCategories } from "@/components/service-categories"
 import { FeaturedServices } from "@/components/featured-services"
 import { PopularVenues } from "@/components/popular-venues"
@@ -26,9 +26,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="container py-8">
-        <MapSearchFinder />
-      </section>
+
 
       <section className="container py-8">
         <ServiceCategories />

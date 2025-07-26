@@ -40,7 +40,7 @@ export function PopularVenues() {
         <Link key={venue.id} href={`/services/halls/${venue.id}`}>
           <Card className="overflow-hidden h-full hover:shadow-md transition-shadow">
             <div className="aspect-video relative">
-              <img src={getImageUrl(venue.image)} alt={venue.name} className="object-cover w-full h-full" />
+              <img src={venue.image || "/placeholder.svg?height=300&width=500"} alt={venue.name} className="object-cover w-full h-full" />
               {venue.featured && <Badge className="absolute top-2 right-2">Popular</Badge>}
             </div>
             <CardContent className="p-4">

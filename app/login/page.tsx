@@ -67,12 +67,16 @@ export default function LoginPage() {
     setRegisterError("") // Clear previous errors
 
     try {
-      await register(registerName, registerEmail, registerPassword)
+      const message = await register(registerName, registerEmail, registerPassword)
       toast({
         title: "Registration successful",
-        description: "Welcome to EventBLR!",
+        description: message || "Please check your email to confirm your account.",
       })
-      router.push(redirectTo)
+      // Don't redirect - user needs to confirm email first
+      // Clear form
+      setRegisterName("")
+      setRegisterEmail("")
+      setRegisterPassword("")
     } catch (error: any) {
       const errorMessage = error.message || "Please check your information and try again."
       setRegisterError(errorMessage)
