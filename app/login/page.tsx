@@ -29,6 +29,7 @@ export default function LoginPage() {
   const [registerPassword, setRegisterPassword] = useState("")
   const [loginError, setLoginError] = useState("")
   const [registerError, setRegisterError] = useState("")
+  const [registrationSuccess, setRegistrationSuccess] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -68,12 +69,15 @@ export default function LoginPage() {
 
     try {
       const message = await register(registerName, registerEmail, registerPassword)
+      setRegistrationSuccess(true)
       toast({
         title: "Registration successful",
-        description: message || "Welcome to EventPro!",
+        description: "Confirmation email has been sent, click on that to proceed",
       })
-      // Redirect to home page after successful registration
-      router.push("/")
+      // Clear form but stay on the same page
+      setRegisterName("")
+      setRegisterEmail("")
+      setRegisterPassword("")
     } catch (error: any) {
       const errorMessage = error.message || "Please check your information and try again."
       setRegisterError(errorMessage)
@@ -143,6 +147,14 @@ export default function LoginPage() {
                 {registerError && (
                   <Alert variant="destructive">
                     <AlertDescription>{registerError}</AlertDescription>
+                  </Alert>
+                )}
+                
+                {registrationSuccess && (
+                  <Alert>
+                    <AlertDescription>
+                      <strong>Registration successful!</strong> Confirmation email has been sent to your email address. Please click on the link in the email to proceed.
+                    </AlertDescription>
                   </Alert>
                 )}
                 
