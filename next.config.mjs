@@ -8,15 +8,10 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    domains: ['images.unsplash.com', 'placeholder.svg'],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:3001/api/:path*',
-      },
-    ];
-  },
+  // Remove API rewrites for production deployment
+  // The frontend will handle API calls directly
 }
 
 export default nextConfig

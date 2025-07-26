@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { getApiUrl } from "@/lib/utils"
 
-export default function ConfirmEmailPage() {
+function ConfirmEmailContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState("")
@@ -114,4 +114,21 @@ export default function ConfirmEmailPage() {
   }
 
   return null
-} 
+}
+
+export default function ConfirmEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="container flex h-screen w-screen flex-col items-center justify-center">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+          <div className="flex flex-col space-y-2 text-center">
+            <h1 className="text-2xl font-semibold tracking-tight">Loading...</h1>
+            <p className="text-sm text-muted-foreground">Please wait while we load the page.</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <ConfirmEmailContent />
+    </Suspense>
+  )
+}
