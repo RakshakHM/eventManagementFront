@@ -19,7 +19,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const { login, register, user } = useAuth()
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard"
+  const redirectTo = searchParams.get("redirectTo") || "/"
 
   const [isLoading, setIsLoading] = useState(false)
   const [loginEmail, setLoginEmail] = useState("")
@@ -46,7 +46,7 @@ export default function LoginPage() {
       if (storedUser && storedUser.role === "admin") {
         router.push("/admin")
       } else {
-        router.push(redirectTo)
+        router.push("/")
       }
     } catch (error: any) {
       const errorMessage = error.message || "Please check your credentials and try again."
@@ -70,13 +70,10 @@ export default function LoginPage() {
       const message = await register(registerName, registerEmail, registerPassword)
       toast({
         title: "Registration successful",
-        description: message || "Please check your email to confirm your account.",
+        description: message || "Welcome to EventPro!",
       })
-      // Don't redirect - user needs to confirm email first
-      // Clear form
-      setRegisterName("")
-      setRegisterEmail("")
-      setRegisterPassword("")
+      // Redirect to home page after successful registration
+      router.push("/")
     } catch (error: any) {
       const errorMessage = error.message || "Please check your information and try again."
       setRegisterError(errorMessage)

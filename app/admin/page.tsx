@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, DollarSign, Package, Users } from "lucide-react"
 import { AdminBookingsTable } from "@/components/admin-bookings-table"
-import { AdminServiceStats } from "@/components/admin-service-stats"
+
 import { useEffect, useState } from "react"
 import { getApiUrl } from "@/lib/utils"
 
@@ -70,9 +70,8 @@ export default function AdminDashboardPage() {
         {/* Optionally, add more cards for users or popular services */}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6">
         <AdminBookingsTable />
-        <AdminServiceStats />
       </div>
     </div>
   )

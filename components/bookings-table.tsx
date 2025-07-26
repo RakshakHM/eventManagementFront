@@ -74,7 +74,7 @@ export function BookingsTable() {
                   : booking.service
               }</TableCell>
               <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
-              <TableCell>{typeof booking.price === "number" ? `$${booking.price}` : booking.price}</TableCell>
+              <TableCell>{typeof booking.price === "number" ? `Rs${booking.price}` : booking.price}</TableCell>
               <TableCell>
                 <Badge
                   variant={

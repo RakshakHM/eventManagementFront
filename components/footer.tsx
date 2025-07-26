@@ -7,7 +7,7 @@ export function Footer() {
   return (
     <footer className="bg-muted">
       <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div className="space-y-4">
             <h3 className="text-lg font-bold">EventPro</h3>
             <p className="text-muted-foreground">Find and book the best event services for your special occasions.</p>
@@ -83,17 +83,7 @@ export function Footer() {
             </ul>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold">Subscribe</h3>
-            <p className="text-muted-foreground">Subscribe to our newsletter for the latest updates and offers.</p>
-            <div className="flex space-x-2">
-              <Input type="email" placeholder="Your email" />
-              <Button type="submit" size="sm">
-                <Mail className="h-4 w-4 mr-2" />
-                <span>Subscribe</span>
-              </Button>
-            </div>
-          </div>
+
         </div>
 
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">

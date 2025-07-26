@@ -5,7 +5,7 @@ import type React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Calendar, Home, Package, Settings, Users } from "lucide-react"
+import { Calendar, Home, Package } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface NavItem {
@@ -32,16 +32,6 @@ export function AdminNav() {
       title: "Bookings",
       href: "/admin/bookings",
       icon: Calendar,
-    },
-    {
-      title: "Users",
-      href: "/admin/users",
-      icon: Users,
-    },
-    {
-      title: "Settings",
-      href: "/admin/settings",
-      icon: Settings,
     },
   ]
 

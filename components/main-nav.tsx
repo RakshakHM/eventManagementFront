@@ -40,14 +40,7 @@ export function MainNav() {
         >
           About
         </Link>
-        <Link
-          href="/contact"
-          className={`text-sm font-medium transition-colors hover:text-primary ${
-            pathname === "/contact" ? "text-primary" : "text-muted-foreground"
-          }`}
-        >
-          Contact
-        </Link>
+
       </nav>
 
       <div className="hidden md:flex items-center ml-auto space-x-4">

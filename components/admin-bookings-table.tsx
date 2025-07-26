@@ -129,7 +129,7 @@ export function AdminBookingsTable({ fullTable = false, searchId: searchIdProp }
               </TableCell>
               <TableCell>{booking.service?.name}</TableCell>
               <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
-              <TableCell>${booking.price}</TableCell>
+              <TableCell>Rs{booking.price}</TableCell>
               <TableCell>
                 <Badge
                   variant={

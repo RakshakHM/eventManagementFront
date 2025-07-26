@@ -1,9 +1,9 @@
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Star, MapPin } from "lucide-react"
-import { getServices } from "@/lib/data"
-import { getImageUrl } from "@/lib/utils";
+import { Star, MapPin, Loader2 } from "lucide-react"
+import { getApiUrl } from "@/lib/utils"
+import { useState, useEffect } from "react"
 
 interface RelatedServicesProps {
   category: string
@@ -11,13 +11,64 @@ interface RelatedServicesProps {
 }
 
 export function RelatedServices({ category, currentId }: RelatedServicesProps) {
-  const allServices = getServices()
-  const relatedServices = allServices
-    .filter((service) => service.category === category && service.id !== currentId)
-    .slice(0, 4)
+  const [relatedServices, setRelatedServices] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchRelatedServices = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await fetch(getApiUrl("/api/services"))
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch services')
+        }
+        
+        const allServices = await response.json()
+        const filtered = allServices
+          .filter((service: any) => {
+            // Ensure both IDs are compared as strings to avoid type mismatch
+            return service.category === category && String(service.id) !== String(currentId)
+          })
+          .slice(0, 4)
+        
+        setRelatedServices(filtered)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load related services')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchRelatedServices()
+  }, [category, currentId])
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2 text-muted-foreground">Loading related services...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">Unable to load related services</p>
+        <p className="text-sm text-red-500">{error}</p>
+      </div>
+    )
+  }
 
   if (relatedServices.length === 0) {
-    return null
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">No related services found in this category</p>
+      </div>
+    )
   }
 
   return (
